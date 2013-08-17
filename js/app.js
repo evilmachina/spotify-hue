@@ -108,7 +108,7 @@ var  isRange = function(low, high, threshold){
                 num++;
             }
         }
-        return num >= threshold;
+        return num >= (threshold);
     }
 
 var isKick = function(spectrum){
@@ -127,26 +127,55 @@ var isHat = function(spectrum){
 };
 
 
-var culor = 'blue';
+var kickColor = 'white';
+var snareColor = 'white';
+var hatColor = 'white';
+
+
 var update = function(a){
     var spectrum = a.audio.spectrum;
     fEnergy(spectrum);
     //console.log('hej');
     //console.log(a);
-  /*  $('.bar').each(function( index ) {
+    $('.bar').each(function( index ) {
             $(this).height( (120 - (96 + spectrum.left[index])) * 4);
         });
-    */
-    var newCulor = 'blue';
-    if(isHat(spectrum)){
-     newCulor = 'red';
-    }
-    if(newCulor != culor){
-        $('#bar-holder').css('background-color', newCulor);
-        culor = newCulor;
-    }
     
 
+    var kick = isKick(spectrum);
+    var snare = isSnare(spectrum);
+    var hat = isHat(spectrum);
+
+    var newColor = 'blue';
+    if(kick){
+     newColor = 'red';
+    }
+    if(newColor != kickColor){
+        $('#kick').css('background-color', newColor);
+        kickColor = newColor;
+    }
+     newColor = 'blue';
+    if(snare){
+     newColor = 'red';
+    }
+    if(newColor != snareColor){
+        $('#snare').css('background-color', newColor);
+        snareColor = newColor;
+    }
+     newColor = 'blue';
+    if(hat){
+     newColor = 'red';
+    }
+    if(newColor != hatColor){
+        $('#hat').css('background-color', newColor);
+        hatColor = newColor;
+    }
+
+    if(kick && snare && hat){
+        $('#kick').css('background-color', 'white');
+        $('#snare').css('background-color', 'white');
+        $('#hat').css('background-color', 'white');
+    }
 }; 
 
 
