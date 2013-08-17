@@ -1,0 +1,52 @@
+{
+  "AcceptedLinkTypes": [
+		"album", "playlist", "track"
+	],
+    "AppDescription": {
+		    "en": "Philips Hue visulazer"
+	  },
+	  "AppIcon": {
+		    "18x18": "",
+		    "64x64": "",
+		    "128x128": "",
+		    "300x300": ""
+	  },
+	  "AppName": {
+		    "en": "hue"
+	  },
+	  "AppURL":"www.partymote.com",
+	  "BundleIdentifier": "hue",
+	  "BundleType": "Application",
+	  "BundleVersion": "0.1",
+	  "DefaultTabs": [
+		    {
+			      "arguments": "main",
+			      "title": {
+				        "en": "Home"
+		        }
+		    },
+		    {
+		        "arguments": "settings",
+			      "title": {
+				        "en": "Settings"
+			      }
+        }
+	  ],
+	  "Dependencies": {
+	      "api": "1.34.0",
+	      "views": "1.39.3"
+    },
+	  "RequiredInterface": 1,
+	  "RequiredPermissions": [
+        "http://thing.everymote.com",
+        "*.*"
+	  ],
+	  "SupportedDeviceClasses": [
+    		"Web",
+    		"Desktop"
+  		],
+	  "SupportedLanguages": [
+		    "en"
+	  ],
+	  "VendorIdentifier": "com.everymote"
+}
