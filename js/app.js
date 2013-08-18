@@ -130,23 +130,41 @@ var isHat = function(spectrum){
 var kickColor = 'white';
 var snareColor = 'white';
 var hatColor = 'white';
+var colorOffset = 360,
+    autoColorOffset = 0.036;
 
+var getColor = function(h){
+
+    var rgb = hsvToRgb(h, 1, 1);
+
+    var cssColor = 'rgb(' + rgb.join(',') + ')';
+   // console.log(h);
+    //console.log(rgb);
+    return cssColor;
+}
 
 var update = function(a){
+
     var spectrum = a.audio.spectrum;
     fEnergy(spectrum);
     //console.log('hej');
     //console.log(a);
+    var test = [];
+
     $('.bar').each(function( index ) {
-            $(this).height( (120 - (96 + spectrum.left[index])) * 4);
+            
+            var iPercent = index/31;
+            var h = 360 - (360 * iPercent + colorOffset) % 360;
+            test.push(h);
+            $(this).height( (120 - (96 + spectrum.left[index])) * 4).css('background-color', getColor(h));
         });
-    
+    //console.log(test);
 
     var kick = isKick(spectrum);
     var snare = isSnare(spectrum);
     var hat = isHat(spectrum);
 
-    var newColor = 'blue';
+    var newColor = 'rgb(0, 0, 255)';
     if(kick){
      newColor = 'red';
     }
@@ -176,6 +194,9 @@ var update = function(a){
         $('#snare').css('background-color', 'white');
         $('#hat').css('background-color', 'white');
     }
+
+    colorOffset += autoColorOffset;
+    colorOffset %= 360;
 }; 
 
 

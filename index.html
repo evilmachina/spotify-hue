@@ -11,7 +11,7 @@
     #bar-holder{
     	height: 480px;
     	min-width: 0px; 
-    	background-color: blue;
+    	background-color: black;
     	display: inline-block;
     }
     .bar{
@@ -35,7 +35,67 @@
 </div>
 
 <script src="sp://hue/lib/jquery.js"></script>
+
+<script src="http://threejs.org/build/three.min.js"></script>
+<script src="https://raw.github.com/mrdoob/stats.js/master/build/stats.min.js"></script>
+<script>
+	var stats = new Stats();
+	stats.setMode(1); // 0: fps, 1: ms
+
+	// Align top-left
+	stats.domElement.style.position = 'absolute';
+	stats.domElement.style.left = '0px';
+	stats.domElement.style.top = '0px';
+
+	document.body.appendChild( stats.domElement );
+
+
+</script>
+<script>
+
+
+    var camera, scene, renderer;
+    var geometry, material, mesh;
+
+    init();
+    animate();
+
+    function init() {
+
+        camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 1, 10000 );
+        camera.position.z = 1000;
+
+        scene = new THREE.Scene();
+
+        geometry = new THREE.CubeGeometry( 200, 200, 200 );
+        material = new THREE.MeshBasicMaterial( { color: 0xff0000 } );
+
+        mesh = new THREE.Mesh( geometry, material );
+        scene.add( mesh );
+
+        renderer = new THREE.CanvasRenderer();
+        renderer.setSize( window.innerWidth, window.innerHeight );
+
+        document.body.appendChild( renderer.domElement );
+
+    }
+
+    function animate() {
+
+    stats.begin();
+        // note: three.js includes requestAnimationFrame shim
+        requestAnimationFrame( animate );
+
+        mesh.rotation.x += 0.01;
+        mesh.rotation.y += 0.02;
+
+        renderer.render( scene, camera );
+        stats.end();
+
+    }
+
+</script>	
+<script src="sp://hue/js/colorHelper.js"></script>
 <script src="sp://hue/js/app.js"></script>
-	
 </body>
 </html>
