@@ -151,12 +151,12 @@ var update = function(a){
     //console.log(a);
     var test = [];
 
-    $('.bar').each(function( index ) {
+    $('.inner-bar').each(function( index ) {
             
             var iPercent = index/31;
             var h = 360 - (360 * iPercent + colorOffset) % 360;
             test.push(h);
-            $(this).height( (120 - (96 + spectrum.left[index])) * 4).css('background-color', getColor(h));
+            $(this).height( ((96 + spectrum.left[index])) * 4).css('background-color', getColor(h));
         });
     //console.log(test);
 
@@ -197,6 +197,7 @@ var update = function(a){
 
     colorOffset += autoColorOffset;
     colorOffset %= 360;
+    stats.update();
 }; 
 
 
@@ -204,7 +205,7 @@ var update = function(a){
 var bars = [];
 
 for (var i = 1; i <= 31; i++) {
-    bars.push('<div class="bar"/>');
+    bars.push('<div class="bar"><div class="inner-bar"/></div>');
 }
 
 $('#bar-holder').append(bars.join('\n'));
