@@ -11,13 +11,13 @@
     #bar-holder{
     	
     	height: 480px;
-    	min-width: 0px; 
+    	min-width: 100%;
     	background-color: black;
     	display: inline-block;
     }
     .bar{
     	position: relative;
-    	width: 30px;
+    	width: 2.7%;
     	height: 100%;
     	background-color: black;
     	display: inline-block;
@@ -36,6 +36,7 @@
   </style>
 </head>
 <body>
+<div id="beat" class='beat'>beat</div>
 <div id="kick" class='beat'>kick</div>
 <div id="snare" class='beat'>snare</div>
 <div id="hat" class='beat'>hat</div>
@@ -43,23 +44,7 @@
 
 </div>
 
-<script src="sp://hue/lib/jquery.js"></script>
-
-<script src="http://threejs.org/build/three.min.js"></script>
-<script src="https://raw.github.com/mrdoob/stats.js/master/build/stats.min.js"></script>
-<script>
-	var stats = new Stats();
-	stats.setMode(0); // 0: fps, 1: ms
-
-	// Align top-left
-	stats.domElement.style.position = 'absolute';
-	stats.domElement.style.left = '0px';
-	stats.domElement.style.top = '0px';
-
-	document.body.appendChild( stats.domElement );
-
-
-</script>	
+<script src="sp://hue/lib/jquery.js"></script>	
 <script src="sp://hue/js/colorHelper.js"></script>
 <script src="sp://hue/js/app.js"></script>
 </body>

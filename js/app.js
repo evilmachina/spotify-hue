@@ -11,6 +11,12 @@ function createArray(length) {
     return arr;
 };
 
+var getLoudnesInProcents = function(loudnesDB){
+
+    var procent =  Math.pow((96 + loudnesDB), 10) / Math.pow(108,10) * 100;
+    return  Math.min(procent,100);
+};
+
 
 var feBuffer = createArray(31,42);
 var fdBuffer = createArray(31,42);
@@ -61,7 +67,7 @@ var variance = function(arr, val){
 var fEnergy = function(spectrum){
     var instant, E, V, C, diff, dAvg, diff2;
     for (var i = 0; i < spectrum.left.length; i++){
-        instant = spectrum.left[i];
+        instant = getLoudnesInProcents(spectrum.left[i]);
         E = average(feBuffer[i]);
         V = variance(feBuffer[i], E);
         C = (-0.0025714 * V) + 1.5142857;
@@ -111,21 +117,24 @@ var  isRange = function(low, high, threshold){
         return num >= (threshold);
     }
 
-var isKick = function(spectrum){
+var isKick = function(){
 
     return isRange(0, 6, 2);
 };
 
-var isSnare = function(spectrum){
+var isSnare = function(){
 
     return isRange(7, 30, 8);
 };
 
-var isHat = function(spectrum){
+var isHat = function(){
 
     return isRange(23, 30, 1);
 };
 
+var isBeat = function(){
+    return isRange(0, 30, 3);
+};
 
 var kickColor = 'white';
 var snareColor = 'white';
@@ -141,7 +150,9 @@ var getColor = function(h){
    // console.log(h);
     //console.log(rgb);
     return cssColor;
-}
+};
+
+
 
 var update = function(a){
 
@@ -155,8 +166,11 @@ var update = function(a){
             
             var iPercent = index/31;
             var h = 360 - (360 * iPercent + colorOffset) % 360;
-            test.push(h);
-            $(this).height( ((96 + spectrum.left[index])) * 4).css('background-color', getColor(h));
+            
+
+            var height = getLoudnesInProcents(spectrum.left[index]);
+            
+            $(this).height(height+'%').css('background-color', getColor(h));
         });
     //console.log(test);
 
@@ -195,9 +209,14 @@ var update = function(a){
         $('#hat').css('background-color', 'white');
     }
 
+    if(isBeat()){
+        $('#beat').css('background-color', 'white');
+    }else{
+       $('#beat').css('background-color', 'black'); 
+    }
+
     colorOffset += autoColorOffset;
     colorOffset %= 360;
-    stats.update();
 }; 
 
 
