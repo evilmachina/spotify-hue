@@ -17,9 +17,17 @@ var getLoudnesInProcents = function(loudnesDB){
     return  Math.min(procent,100);
 };
 
+var frameBufferSize = 512;
+var bufferSize = frameBufferSize/2;
 
-var feBuffer = createArray(31,42);
-var fdBuffer = createArray(31,42);
+var signal = new Float32Array(bufferSize);
+var peak = new Float32Array(bufferSize);
+
+var fft = new FFT(bufferSize, 11000);
+
+
+var feBuffer = createArray(256,42);
+var fdBuffer = createArray(256,42);
 var fTimer = [];
 var fIsOnset = [];
 var insertAt = 0;
@@ -66,8 +74,8 @@ var variance = function(arr, val){
 
 var fEnergy = function(spectrum){
     var instant, E, V, C, diff, dAvg, diff2;
-    for (var i = 0; i < spectrum.left.length; i++){
-        instant = getLoudnesInProcents(spectrum.left[i]);
+    for (var i = 0; i < spectrum.length; i++){
+        instant = getLoudnesInProcents(spectrum[i]);
         E = average(feBuffer[i]);
         V = variance(feBuffer[i], E);
         C = (-0.0025714 * V) + 1.5142857;
@@ -119,21 +127,21 @@ var  isRange = function(low, high, threshold){
 
 var isKick = function(){
 
-    return isRange(0, 6, 2);
+    return isRange(0, 10, 0.3);
 };
 
 var isSnare = function(){
 
-    return isRange(7, 30, 8);
+    return isRange(60, 128 , 8);
 };
 
 var isHat = function(){
 
-    return isRange(23, 30, 1);
+    return isRange(70, 200, 1);
 };
 
 var isBeat = function(){
-    return isRange(0, 30, 3);
+    return isRange(0, 256, 3);
 };
 
 var kickColor = 'white';
@@ -153,30 +161,48 @@ var getColor = function(h){
 };
 
 
-
+var kick2 = new Kick();
 var update = function(a){
-
-    var spectrum = a.audio.spectrum;
-    fEnergy(spectrum);
+    
+    //var spectrum = a.audio.spectrum;
+    
     //console.log('hej');
     //console.log(a);
+    var leftAndRight = a.audio.wave.left.concat(a.audio.wave.right);
+    //signal = DSP.getChannel(DSP.MIX, leftAndRight);
+    //console.log(signal.length);
+    fft.forward(a.audio.wave.left);
+    //fEnergy(fft.spectrum);
+    //console.log(fft.spectrum);
+
+    for ( var i = 0; i < bufferSize; i++ ) {
+          fft.spectrum[i] *= -1 * Math.log((fft.bufferSize/2 - i) * (0.5/fft.bufferSize/2)) * fft.bufferSize; // equalize, attenuates low freqs and boosts highs
+          
+          if ( peak[i] < fft.spectrum[i] ) {
+            peak[i] = fft.spectrum[i];
+          } else {
+            peak[i] *= 0.99; // peak slowly falls until a new peak is found
+          }
+        }
+
     var test = [];
 
     $('.inner-bar').each(function( index ) {
             
-            var iPercent = index/31;
+            var iPercent = index/128;
             var h = 360 - (360 * iPercent + colorOffset) % 360;
-            
+            //test[index] = fft.getBandFrequency(index);
 
-            var height = getLoudnesInProcents(spectrum.left[index]);
+            var height = peak[index];
             
             $(this).height(height+'%').css('background-color', getColor(h));
         });
     //console.log(test);
 
-    var kick = isKick(spectrum);
-    var snare = isSnare(spectrum);
-    var hat = isHat(spectrum);
+    var kick = kick2.onUpdate(fft.spectrum);
+    //var kick = isKick(fft.spectrum);
+    var snare = isSnare(fft.spectrum);
+    var hat = isHat(fft.spectrum);
 
     var newColor = 'rgb(0, 0, 255)';
     if(kick){
@@ -217,13 +243,14 @@ var update = function(a){
 
     colorOffset += autoColorOffset;
     colorOffset %= 360;
+
 }; 
 
 
 
 var bars = [];
 
-for (var i = 1; i <= 31; i++) {
+for (var i = 0; i < 128; i++) {
     bars.push('<div class="bar"><div class="inner-bar"/></div>');
 }
 
@@ -235,7 +262,7 @@ require(['$api/models','$api/audio'], function(models,audio) {
             models.player.load("index").done(function(player) {
 
                 console.log(audio);
-                var RTA = audio.RealtimeAnalyzer.forPlayer(player, audio.BAND31);
+                var RTA = audio.RealtimeAnalyzer.forPlayer(player);
                 RTA.addEventListener('audio',update);
                 console.log(RTA);
             });
