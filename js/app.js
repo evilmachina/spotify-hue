@@ -161,7 +161,10 @@ var getColor = function(h){
 };
 
 
-var kick2 = new Kick();
+var kick = new Kick();
+var snare = new Kick({frequency:[30,128], threshold:0.2});
+var hat = new Kick({frequency:[100,128], threshold:0.2});
+
 var update = function(a){
     
     //var spectrum = a.audio.spectrum;
@@ -199,13 +202,13 @@ var update = function(a){
         });
     //console.log(test);
 
-    var kick = kick2.onUpdate(fft.spectrum);
+    var isKick = kick.onUpdate(fft.spectrum);
     //var kick = isKick(fft.spectrum);
-    var snare = isSnare(fft.spectrum);
-    var hat = isHat(fft.spectrum);
+    var isSnare = snare.onUpdate(fft.spectrum);
+    var isHat = hat.onUpdate(fft.spectrum);
 
     var newColor = 'rgb(0, 0, 255)';
-    if(kick){
+    if(isKick){
      newColor = 'red';
     }
     if(newColor != kickColor){
@@ -213,7 +216,7 @@ var update = function(a){
         kickColor = newColor;
     }
      newColor = 'blue';
-    if(snare){
+    if(isSnare){
      newColor = 'red';
     }
     if(newColor != snareColor){
@@ -221,7 +224,7 @@ var update = function(a){
         snareColor = newColor;
     }
      newColor = 'blue';
-    if(hat){
+    if(isHat){
      newColor = 'red';
     }
     if(newColor != hatColor){
@@ -229,7 +232,7 @@ var update = function(a){
         hatColor = newColor;
     }
 
-    if(kick && snare && hat){
+    if(isKick && isSnare && isHat){
         $('#kick').css('background-color', 'white');
         $('#snare').css('background-color', 'white');
         $('#hat').css('background-color', 'white');

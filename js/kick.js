@@ -1,7 +1,7 @@
 var Kick = function ( o ) {
     o = o || {};
     this.frequency = o.frequency !== undefined ? o.frequency : [ 0, 20 ];
-    this.threshold = o.threshold !== undefined ? o.threshold :  0.3;
+    this.threshold = o.threshold !== undefined ? o.threshold :  0.2;
     this.decay     = o.decay     !== undefined ? o.decay     :  0.5;
     this.onKick    = o.onKick;
     this.offKick   = o.offKick;
