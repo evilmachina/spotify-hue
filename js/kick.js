@@ -1,8 +1,8 @@
 var Kick = function ( o ) {
     o = o || {};
     this.frequency = o.frequency !== undefined ? o.frequency : [ 0, 20 ];
-    this.threshold = o.threshold !== undefined ? o.threshold :  0.2;
-    this.decay     = o.decay     !== undefined ? o.decay     :  0.5;
+    this.threshold = o.threshold !== undefined ? o.threshold :  0.3;
+    this.decay     = o.decay     !== undefined ? o.decay     :  0.2;
     this.onKick    = o.onKick;
     this.offKick   = o.offKick;
     this.isOn      = false;
@@ -36,7 +36,7 @@ var Kick = function ( o ) {
       if ( magnitude >= this.currentThreshold &&
           magnitude >= this.threshold ) {
         this.currentThreshold = magnitude;
-        console.log("onkick");
+        
         return true;
         
       } else {
