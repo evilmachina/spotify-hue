@@ -1,21 +1,4 @@
-
-function createArray(length) {
-    var arr = new Array(length || 0),
-        i = length;
-
-    if (arguments.length > 1) {
-        var args = Array.prototype.slice.call(arguments, 1);
-        while(i--) arr[length-1 - i] = createArray.apply(this, args);
-    }
-
-    return arr;
-};
-
-var getLoudnesInProcents = function(loudnesDB){
-
-    var procent =  Math.pow((96 + loudnesDB), 10) / Math.pow(108,10) * 100;
-    return  Math.min(procent,100);
-};
+ var socket = io.connect('neuromancer.local:1337');
 
 //var frameBufferSize = 512;
 var bufferSize = 256;
@@ -24,125 +7,6 @@ var signal = new Float32Array(bufferSize);
 var peak = new Float32Array(bufferSize);
 
 var fft = new FFT(bufferSize, 11000);
-
-
-var feBuffer = createArray(256,42);
-var fdBuffer = createArray(256,42);
-var fTimer = [];
-var fIsOnset = [];
-var insertAt = 0;
-var sensitivity = 100;
-
-var average = function(arr){
-        var avg = 0;
-        for (var i = 0; i < arr.length; i++)
-        {
-            avg += arr[i];
-        }
-        avg /= arr.length;
-        return avg;
-    }
-
-var specAverage = function(arr){
-        var avg = 0;
-        var num = 0;
-        for (var i = 0; i < arr.length; i++)
-        {
-            if (arr[i] > 0)
-            {
-                avg += arr[i];
-                num++;
-            }
-        }
-        if (num > 0)
-        {
-            avg /= num;
-        }
-        return avg;
-    };
-
-var variance = function(arr, val){
-        var V = 0;
-        for (var i = 0; i < arr.length; i++)
-        {
-            V += Math.pow(arr[i] - val, 2);
-        }
-        V /= arr.length;
-        return V;
-    };
-
-
-var fEnergy = function(spectrum){
-    var instant, E, V, C, diff, dAvg, diff2;
-    for (var i = 0; i < spectrum.length; i++){
-        instant = getLoudnesInProcents(spectrum[i]);
-        E = average(feBuffer[i]);
-        V = variance(feBuffer[i], E);
-        C = (-0.0025714 * V) + 1.5142857;
-        diff = Math.max(instant - C * E, 0);
-        dAvg = specAverage(fdBuffer[i]);
-        diff2 = Math.max(diff - dAvg, 0);
-
-        if (new Date().getTime() - fTimer[i] < sensitivity){
-                fIsOnset[i] = false;
-            }else if (diff2 > 0){
-                fIsOnset[i] = true;
-                fTimer[i] = new Date().getTime();
-            }else{
-                fIsOnset[i] = false;
-            }
-            feBuffer[i][insertAt] = instant;
-            fdBuffer[i][insertAt] = diff;
-        }
-        insertAt++;
-        if (insertAt == feBuffer[0].length)
-        {
-            insertAt = 0;
-        }
-};
-
-
-var getMaxAmplitude = function (spectrum, low, hige ) {
-      var max = 0;
-
-    for ( var i = low; i <= hige; i++ ) {
-        if ( spectrum.left[ i ] > max ) { max = spectrum.left[ i ]; };
-      }
-      return max;
-    };
-
-var threshold = 0.25;
-
-var  isRange = function(low, high, threshold){
-        var num = 0;
-        for (var i = low; i <= high; i++)
-        {
-            if (fIsOnset[i])
-            {
-                num++;
-            }
-        }
-        return num >= (threshold);
-    }
-
-var isKick = function(){
-
-    return isRange(0, 10, 0.3);
-};
-
-var isSnare = function(){
-
-    return isRange(60, 128 , 8);
-};
-
-var isHat = function(){
-
-    return isRange(70, 200, 1);
-};
-
-var isBeat = function(){
-    return isRange(0, 256, 3);
-};
 
 var kickColor = 'white';
 var snareColor = 'white';
@@ -228,9 +92,16 @@ var update = function(a){
     var isSnare = snare.onUpdate(fft.spectrum);
     var isHat = hat.onUpdate(fft.spectrum);
     var isBeat = beat.onUpdate(fft.spectrum);
+
+    var r = isKick ? 255 : 0;
+    var g = isSnare ? 255 : 0;
+    var b = isHat ? 255 : 0;
+    var data = {rgb:[r,g,b], percentage:100};
  
     updateBeat(isKick, isSnare, isHat, isBeat);
 
+
+    socket.emit('data', { data: data });
     //var max2 = 0;
     //console.log(max2);
     for ( var i = 0; i < bufferSize/2; i++ ) {
