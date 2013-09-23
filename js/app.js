@@ -161,9 +161,9 @@ var getColor = function(h){
 };
 
 
-var kick = new Kick({frequency:[0,6], threshold:0.2, decay:0.05});
-var snare = new Kick({frequency:[6,10], threshold:0.05, decay:0.05});
-var hat = new Kick({frequency:[1,7], threshold:0.2});
+var kick = new Kick({frequency:[0,10], threshold:0.2, decay:0.05});
+var snare = new Kick({frequency:[10,30], threshold:0.05, decay:0.05});
+var hat = new Kick({frequency:[30,128], threshold:0.05});
 var beat = new Kick({frequency:[0,128], threshold:0.2, decay:0.05});
 
 var updateBeat = function(isKick, isSnare, isHat, isBeat){
