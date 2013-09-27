@@ -15,6 +15,13 @@ var hatColor = 'white';
 var colorOffset = 360,
     autoColorOffset = 0.036;
 
+var innerBars,
+    kickContainer = $('#kick'),
+    snareContainer = $('#snare'),
+    hatContainer = $('#hat'),
+    beatContainer = $('#beat'),
+    body = $(document.body);
+
 var getColor = function(h){
 
     var rgb = hsvToRgb(h, 1, 1);
@@ -37,7 +44,7 @@ var updateBeat = function(isKick, isSnare, isHat, isBeat){
      newColor = 'red';
     }
     if(newColor != kickColor){
-        $('#kick').css('background-color', newColor);
+        kickContainer.css('background-color', newColor);
         kickColor = newColor;
     }
      newColor = 'blue';
@@ -45,7 +52,7 @@ var updateBeat = function(isKick, isSnare, isHat, isBeat){
      newColor = 'red';
     }
     if(newColor != snareColor){
-        $('#snare').css('background-color', newColor);
+        snareContainer.css('background-color', newColor);
         snareColor = newColor;
     }
      newColor = 'blue';
@@ -53,21 +60,21 @@ var updateBeat = function(isKick, isSnare, isHat, isBeat){
      newColor = 'red';
     }
     if(newColor != hatColor){
-        $('#hat').css('background-color', newColor);
+        hatContainer.css('background-color', newColor);
         hatColor = newColor;
     }
 
     if(isKick && isSnare && isHat){
-        $(document.body).css('background-color', 'white');
+        body.css('background-color', 'white');
     }else{
 
-       $(document.body).css('background-color', 'black'); 
+       body.css('background-color', 'black'); 
     }
 
     if(isBeat){
-        $('#beat').css('background-color', 'white');
+        beatContainer.css('background-color', 'white');
     }else{
-       $('#beat').css('background-color', 'transparent'); 
+       beatContainer.css('background-color', 'transparent'); 
     }
 }
 
@@ -105,7 +112,7 @@ var update = function(a){
     socket.emit('data', { data: data });
     //var max2 = 0;
     //console.log(max2);
-    for ( var i = 0; i < bufferSize/2; i++ ) {
+   /* for ( var i = 0; i < bufferSize/2; i++ ) {
          equliced[i]  = fft.spectrum[i] * -1 * Math.log((fft.bufferSize/2 - i) * (0.5/fft.bufferSize/2)) * fft.bufferSize; // equalize, attenuates low freqs and boosts highs
           //console.log(fft.spectrum[i]);
           //max2 = Math.max(fft.spectrum[i], max2);
@@ -114,17 +121,26 @@ var update = function(a){
           } else {
             peak[i] *= 0.99; // peak slowly falls until a new peak is found
           }
+        }*/
+    var spotifySpectrum = a.audio.spectrum.right;
+    for ( var i = 0; i < 31; i++ ) {
+       if ( peak[i] < spotifySpectrum[i] ) {
+            peak[i] = spotifySpectrum[i];
+          } else {
+            peak[i] *= 0.99; // peak slowly falls until a new peak is found
+          }
         }
+
     //console.log(max2);
     var test = [];
 
-    $('.inner-bar').each(function( index ) {
+    innerBars.each(function( index ) {
             
-            var iPercent = index/128;
+            var iPercent = index/31;
             var h = 360 - (360 * iPercent + colorOffset) % 360;
       //      test[index] = fft.getBandFrequency(index);
 
-            var height = peak[index] /2;
+            var height = 100 + spotifySpectrum[index];
             
             $(this).height(height+'%').css('background-color', getColor(h));
         });
@@ -141,19 +157,19 @@ var update = function(a){
 
 var bars = [];
 
-for (var i = 0; i < 128; i++) {
+for (var i = 0; i < 31; i++) {
     bars.push('<div class="bar"><div class="inner-bar"/></div>');
 }
 
 $('#bar-holder').append(bars.join('\n'));
-
+innerBars = $('.inner-bar');
 
 require(['$api/models','$api/audio'], function(models,audio) {
             
             models.player.load("index").done(function(player) {
 
                 console.log(audio);
-                var RTA = audio.RealtimeAnalyzer.forPlayer(player);
+                var RTA = audio.RealtimeAnalyzer.forPlayer(player,audio.BAND31);
                 RTA.addEventListener('audio',update);
                 console.log(RTA);
             });
