@@ -1,4 +1,5 @@
- var socket = io.connect('neuromancer.local:1337');
+ var socket = io.connect('172.16.12.57:1337');
+ //var socket = io.connect('neuromancer.local:1337'); //io.connect('172.16.12.57:1337');
 
 //var frameBufferSize = 512;
 var bufferSize = 256;
@@ -57,15 +58,16 @@ var updateBeat = function(isKick, isSnare, isHat, isBeat){
     }
 
     if(isKick && isSnare && isHat){
-        $('#kick').css('background-color', 'white');
-        $('#snare').css('background-color', 'white');
-        $('#hat').css('background-color', 'white');
+        $(document.body).css('background-color', 'white');
+    }else{
+
+       $(document.body).css('background-color', 'black'); 
     }
 
     if(isBeat){
         $('#beat').css('background-color', 'white');
     }else{
-       $('#beat').css('background-color', 'black'); 
+       $('#beat').css('background-color', 'transparent'); 
     }
 }
 
@@ -99,7 +101,6 @@ var update = function(a){
     var data = {rgb:[r,g,b], percentage:100};
  
     updateBeat(isKick, isSnare, isHat, isBeat);
-
 
     socket.emit('data', { data: data });
     //var max2 = 0;
