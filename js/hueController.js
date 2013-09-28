@@ -1,5 +1,7 @@
 var inited = false;
 var lastColor;
+var lastcall = new Date().getTime();
+
 var initHue = function(ip){
 	var key = '6bf81c89dbaf4927204d2d9752f5e317';
 	window.hue.setIpAndApiKey(ip, key);
@@ -13,9 +15,15 @@ var initHue = function(ip){
 		var hexcolor = decimalToHex(rgb[0]) + decimalToHex(rgb[1]) + decimalToHex(rgb[2]);
 		//console.log(hexcolor);
 		if(hexcolor === lastColor) return;
+		var curentTime = new Date().getTime();
+		if(curentTime < lastcall + 400) return;
+		lastcall = curentTime;
 		lastColor = hexcolor;
-		var pp = window.hue.setColor(2, hexcolor);//, function(response){console.log(response);});
-		//var pp = window.hue.setAllColors( hexcolor, function(response){console.log(response);});
+		//window.hue.setColor(1, hexcolor);//, function(response){console.log(response);});
+		//window.hue.setColor(2, hexcolor);//, function(response){console.log(response);});
+		//window.hue.setColor(3, hexcolor);//, function(response){console.log(response);});
+		//window.hue.setColor(4, hexcolor);//, function(response){console.log(response);});
+		window.hue.setAllColors( hexcolor, function(response){console.log(response);});
 	});
 
 	inited = true;
