@@ -5,10 +5,7 @@
   <meta http-equiv="Content-Style-Type" content="text/css">
   <title></title>
   <style type="text/css">
-  *{
-    margin: 0;
-    padding: 0;
-  }
+ 
 	html{
 		background-color: black;
     height: 100%;
@@ -19,7 +16,7 @@
   }
   #bar-holder{
   	
-  	height: 480px;
+  	height: calc(100% - 68px );
   	min-width: 100%;
     background-color: transparent;
     position: fixed;
@@ -44,22 +41,53 @@
   .beat{
   	background-color: white;
   }
+  #settings{
+    background-color: gray;
+
+    width: 400px;
+    padding:10px;
+    margin: 10px auto;
+  }
   </style>
 </head>
 <body>
-<div id="beat" class='beat'>beat</div>
-<div id="kick" class='beat'>kick</div>
-<div id="snare" class='beat'>snare</div>
-<div id="hat" class='beat'>hat</div>
-<div id="bar-holder">
+  <div id="main" class="section">  
+  <div id="beat" class='beat'>beat</div>
+  <div id="kick" class='beat'>kick</div>
+  <div id="snare" class='beat'>snare</div>
+  <div id="hat" class='beat'>hat</div>
+  <div id="bar-holder">
 
+  </div>
+</div>
+<div id="settings" class="section">
+  <fieldset>
+    <legend>Led visulaser</legend>
+    <label for="ledvisulaser" >Ip for led visulaser</label><input id="ledvisulaserIp" type="text" value="neuromancer.local"/>
+    <button id="connectLed">Connect</button>
+  </fieldset>
+
+  <fieldset>
+    <legend>Philips hue</legend>
+    <label for="hue" >Ip for Hue</label><input id="hueIp" type="text"></input>
+    <button id="connectHue" onClick="">Connect</button>
+  </fieldset>
 </div>
 
 <script src="http://cdnjs.cloudflare.com/ajax/libs/socket.io/0.9.16/socket.io.min.js"></script>  
-<script src="sp://hue/lib/jquery.js"></script>  
+
+<script src="sp://hue/lib/jquery.js"></script>
+
+<script src="sp://hue/js/tabs.js"></script>  
 <script src="sp://hue/lib/fft.js"></script> 
 <script src="sp://hue/js/kick.js"></script>	
 <script src="sp://hue/js/colorHelper.js"></script>
+<script src="sp://hue/js/ledstripe.js"></script>
+<script src="sp://hue/lib/hue/colors.js"></script>
+<script src="sp://hue/lib/hue/hue.js"></script>
+<script src="sp://hue/js/hueController.js"></script>
 <script src="sp://hue/js/app.js"></script>
+
+
 </body>
 </html>

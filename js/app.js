@@ -1,4 +1,4 @@
- var socket = io.connect('172.16.12.57:1337');
+ 
  //var socket = io.connect('neuromancer.local:1337'); //io.connect('172.16.12.57:1337');
 
 //var frameBufferSize = 512;
@@ -109,7 +109,7 @@ var update = function(a){
  
     updateBeat(isKick, isSnare, isHat, isBeat);
 
-    socket.emit('data', { data: data });
+    body.trigger( "beat", [ data ] );
     //var max2 = 0;
     //console.log(max2);
    /* for ( var i = 0; i < bufferSize/2; i++ ) {
@@ -133,17 +133,19 @@ var update = function(a){
 
     //console.log(max2);
     var test = [];
-
-    innerBars.each(function( index ) {
+    var spectrumlength = innerBars.length;
+        for(var index=0; index<spectrumlength; index++){
+    //innerBars.each(function( index ) {
             
-            var iPercent = index/31;
+            var iPercent = index/spectrumlength;
             var h = 360 - (360 * iPercent + colorOffset) % 360;
       //      test[index] = fft.getBandFrequency(index);
 
-            var height = 100 + spotifySpectrum[index];
+            //var height = (96 + spotifySpectrum[index])/108 * 100;
+            var height = Math.max(Math.min(Math.floor(spotifySpectrum[index] + 60), 72), 0) / 72 * 100;
             
-            $(this).height(height+'%').css('background-color', getColor(h));
-        });
+            $(innerBars[index]).height(height+'%').css('background-color', getColor(h));
+        };
     //console.log(test);
 
     
@@ -169,7 +171,7 @@ require(['$api/models','$api/audio'], function(models,audio) {
             models.player.load("index").done(function(player) {
 
                 console.log(audio);
-                var RTA = audio.RealtimeAnalyzer.forPlayer(player,audio.BAND31);
+                var RTA = audio.RealtimeAnalyzer.forPlayer(player, audio.BAND31);
                 RTA.addEventListener('audio',update);
                 console.log(RTA);
             });
