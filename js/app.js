@@ -1,7 +1,3 @@
- 
- //var socket = io.connect('neuromancer.local:1337'); //io.connect('172.16.12.57:1337');
-
-//var frameBufferSize = 512;
 var bufferSize = 256;
 
 var signal = new Float32Array(bufferSize);
@@ -13,7 +9,7 @@ var kickColor = 'white';
 var snareColor = 'white';
 var hatColor = 'white';
 var colorOffset = 360,
-    autoColorOffset = 0.036;
+    autoColorOffset = 0.09;
 
 var innerBars,
     kickContainer = $('#kick'),
@@ -24,19 +20,20 @@ var innerBars,
 
 var getColor = function(h){
 
-    var rgb = hsvToRgb(h, 1, 1);
+    var rgb = hsv2rgb(h, 100, 100);
 
     var cssColor = 'rgb(' + rgb.join(',') + ')';
-   // console.log(h);
-    //console.log(rgb);
+
     return cssColor;
 };
 
-
+//21.48 - 451.17 Hz
 var kick = new Kick({frequency:[0,10], threshold:0.2, decay:0.05});
+//451.17 - 1310.54 HZ
 var snare = new Kick({frequency:[10,30], threshold:0.05, decay:0.05});
+//1310.54 - 5521.48 Hz
 var hat = new Kick({frequency:[30,128], threshold:0.05});
-var beat = new Kick({frequency:[0,128], threshold:0.2, decay:0.05});
+var beat = new Kick({frequency:[0,128], threshold:0.3, decay:0.07});
 
 var updateBeat = function(isKick, isSnare, isHat, isBeat){
     var newColor = 'rgb(0, 0, 255)';
@@ -78,25 +75,58 @@ var updateBeat = function(isKick, isSnare, isHat, isBeat){
     }
 }
 
+var beatCount = 0,
+    firstBeat = 0,
+    previousBeat = 0,
+    bpmAvg = 0;
+
+var calculateBeatAvr = function(isBeat){
+    var timeNow = new Date().getTime();
+    if (( previousBeat - firstBeat) > 1000){
+        beatCount = 0;
+        bpmAvg = 0;
+    } 
+    if(isBeat){
+        if (beatCount == 0){
+            firstBeat = timeNow;
+            beatCount = 1;
+        }else{
+            bpmAvg = 60000 * beatCount / (timeNow - firstBeat);
+            beatCount++;
+        }
+        previousBeat = timeNow;
+    }
+  
+};
+var slowVolume = 0;
+
+var colorForBand = function(spectrum, numberOfSpectrums){
+    var iPercent = spectrum/numberOfSpectrums;
+    var colorForVolume = 360 - (360 * iPercent + colorOffset) % 360;
+    return colorForVolume;
+};
+
+var colorForBandRGB = function(spectrum, numberOfSpectrums){
+    var colorForVolume = colorForBand(spectrum, numberOfSpectrums);
+    var volumeRgb = hsv2rgb(colorForVolume, 100, 100);
+    return volumeRgb;
+};
+
+var volumeForBand = function(dbValue){
+   return Math.max(Math.min(Math.floor(dbValue + 60), 72), 0) / 72 * 100;
+};
 
 var equliced = new Float32Array(bufferSize/2);
 var update = function(a){
-    
-    //var spectrum = a.audio.spectrum;
-    
-    //console.log('hej');
-    //console.log(a);
+
     var leftAndRight = a.audio.wave.left.concat(a.audio.wave.right);
     var mix = [];
     for (var i = 0, len = leftAndRight.length/2; i < len; i++) {
       mix[i] = (leftAndRight[i] + leftAndRight[len + i]) / 2;
     }
-     
-    //signal //= DSP.getChannel(DSP.MIX, leftAndRight);
-    //console.log(mix.length);
+
     fft.forward(mix);
-    //fEnergy(fft.spectrum);
-    //console.log(fft.spectrum.length);
+
     var isKick = kick.onUpdate(fft.spectrum);
     var isSnare = snare.onUpdate(fft.spectrum);
     var isHat = hat.onUpdate(fft.spectrum);
@@ -105,51 +135,48 @@ var update = function(a){
     var r = isKick ? 255 : 0;
     var g = isSnare ? 255 : 0;
     var b = isHat ? 255 : 0;
-    var data = {rgb:[r,g,b], percentage:100};
- 
-    updateBeat(isKick, isSnare, isHat, isBeat);
 
-    body.trigger( "beat", [ data ] );
-    //var max2 = 0;
-    //console.log(max2);
-   /* for ( var i = 0; i < bufferSize/2; i++ ) {
-         equliced[i]  = fft.spectrum[i] * -1 * Math.log((fft.bufferSize/2 - i) * (0.5/fft.bufferSize/2)) * fft.bufferSize; // equalize, attenuates low freqs and boosts highs
-          //console.log(fft.spectrum[i]);
-          //max2 = Math.max(fft.spectrum[i], max2);
-          if ( peak[i] < equliced[i] ) {
-            peak[i] = equliced[i];
-          } else {
-            peak[i] *= 0.99; // peak slowly falls until a new peak is found
-          }
-        }*/
-    var spotifySpectrum = a.audio.spectrum.right;
-    for ( var i = 0; i < 31; i++ ) {
-       if ( peak[i] < spotifySpectrum[i] ) {
-            peak[i] = spotifySpectrum[i];
-          } else {
-            peak[i] *= 0.99; // peak slowly falls until a new peak is found
-          }
-        }
-
-    //console.log(max2);
-    var test = [];
-    var spectrumlength = innerBars.length;
-        for(var index=0; index<spectrumlength; index++){
-    //innerBars.each(function( index ) {
-            
-            var iPercent = index/spectrumlength;
-            var h = 360 - (360 * iPercent + colorOffset) % 360;
-      //      test[index] = fft.getBandFrequency(index);
-
-            //var height = (96 + spotifySpectrum[index])/108 * 100;
-            var height = Math.max(Math.min(Math.floor(spotifySpectrum[index] + 60), 72), 0) / 72 * 100;
-            
-            $(innerBars[index]).height(height+'%').css('background-color', getColor(h));
-        };
-    //console.log(test);
 
     
+    var spotifySpectrum = a.audio.spectrum.right;
 
+    var test = [];
+    var spectrumlength = innerBars.length;
+    var volume = volumeForBand(spotifySpectrum[16]);
+    
+    if(volume > slowVolume){
+        slowVolume = volume;
+    }else{
+        slowVolume *=0.90;
+    }
+    var volumeRgb = colorForBandRGB(16, spectrumlength);
+    
+
+    var volumeData = {rgb:volumeRgb, percentage:slowVolume};
+    body.trigger( "volume", [ volumeData ] );
+
+    
+    calculateBeatAvr(isBeat);
+
+    var beatvolume = volumeForBand(spotifySpectrum[4]);
+    var beatRgb = colorForBandRGB(4, spectrumlength);
+
+    var data = {rgb:beatRgb, percentage:beatvolume};
+    
+    if(bpmAvg > 140 ){
+        data = {rgb: [r,g,b], percentage:100};
+    }
+
+    body.trigger( "beat", [ data ] );
+
+    updateBeat(isKick, isSnare, isHat, isBeat);
+   /* for(var index=0; index<spectrumlength; index++){
+        
+        var hue = colorForBand(index, spectrumlength);
+        var height = volumeForBand(spotifySpectrum[index]);
+        $(innerBars[index]).height(height+'%').css('background-color', getColor(hue));
+    };
+*/
     colorOffset += autoColorOffset;
     colorOffset %= 360;
 

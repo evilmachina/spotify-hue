@@ -11,19 +11,27 @@ var initHue = function(ip){
 	if(inited) return;
 
 	$(body).on( "beat", function( event, data) {
+		var transactionTime = data.percentage === 100 ? 1 : 5;
+
+		window.hue.setTransitionTime(transactionTime);
 		var rgb = data.rgb;
-		var hexcolor = decimalToHex(rgb[0]) + decimalToHex(rgb[1]) + decimalToHex(rgb[2]);
+		var level = data.percentage / 100;
+		var r = Math.round(rgb[0] * level),
+			g = Math.round(rgb[1] * level),
+			b = Math.round(rgb[2] * level)
+		var hexcolor = decimalToHex(r) + decimalToHex(g) + decimalToHex(b);
 		//console.log(hexcolor);
 		if(hexcolor === lastColor) return;
 		var curentTime = new Date().getTime();
-		if(curentTime < lastcall + 400) return;
+		//if(curentTime < lastcall + 10) return;
 		lastcall = curentTime;
 		lastColor = hexcolor;
+		//console.log(hexcolor);
 		//window.hue.setColor(1, hexcolor);//, function(response){console.log(response);});
-		//window.hue.setColor(2, hexcolor);//, function(response){console.log(response);});
+		//window.hue.setColor(2, hexcolor, function(response){window.hue.setColor(4, hexcolor);});
 		//window.hue.setColor(3, hexcolor);//, function(response){console.log(response);});
-		//window.hue.setColor(4, hexcolor);//, function(response){console.log(response);});
-		window.hue.setAllColors( hexcolor, function(response){console.log(response);});
+		window.hue.setColor(4, hexcolor);//, function(response){console.log(response);});
+		//window.hue.setAllColors( hexcolor);//, function(response){console.log(response);});
 	});
 
 	inited = true;

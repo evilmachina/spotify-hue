@@ -4,14 +4,14 @@
 	],
     "AppDescription": {
 		    "en": "Philips Hue visulazer"
-	  },
-	  "AppIcon": {
+	},
+	"AppIcon": {
 		    "18x18": "",
 		    "64x64": "",
 		    "128x128": "",
 		    "300x300": ""
-	  },
-	  "AppName": {
+	},
+	"AppName": {
 		    "en": "hue"
 	  },
 	  "AppURL":"www.partymote.com",
@@ -40,7 +40,11 @@
 	  "RequiredPermissions": [
         "http://thing.everymote.com",
         "*.*"
-	  ],
+	  ],  
+	  "ApiPermissions": {
+    	"core"       : ["public"],
+    	"trackPlayer": ["public"]
+  	},
 	  "SupportedDeviceClasses": [
     		"Web",
     		"Desktop"
