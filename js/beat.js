@@ -1,4 +1,4 @@
-var Kick = function ( o ) {
+var Beat = function ( o ) {
     o = o || {};
     this.frequency = o.frequency !== undefined ? o.frequency : [ 0, 20 ];
     this.threshold = o.threshold !== undefined ? o.threshold :  0.3;
@@ -11,27 +11,16 @@ var Kick = function ( o ) {
     var _this = this;
   };
 
-  Kick.prototype = {
-    on  : function () { 
-      this.isOn = true;
-      return this;
-    },
-    off : function () {
-      this.isOn = false;
-      return this;
-    },
+  Beat.prototype = {
 
     set : function ( o ) {
       o = o || {};
       this.frequency = o.frequency !== undefined ? o.frequency : this.frequency;
       this.threshold = o.threshold !== undefined ? o.threshold : this.threshold;
       this.decay     = o.decay     !== undefined ? o.decay : this.decay;
-      this.onKick    = o.onKick    || this.onKick;
-      this.offKick   = o.offKick   || this.offKick;
     },
 
     onUpdate : function (spectrum) {
-      //if ( !this.isOn ) { return; }
       var magnitude = this.maxAmplitude( this.frequency,spectrum );
       if ( magnitude >= this.currentThreshold &&
           magnitude >= this.threshold ) {
@@ -41,7 +30,6 @@ var Kick = function ( o ) {
         
       } else {
         this.currentThreshold -= this.decay;
-        //console.log("offkick");
         return false;
       }
     },
