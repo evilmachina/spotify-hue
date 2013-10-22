@@ -151,16 +151,38 @@ var update = function(a){
     //var isKick = bassKick.isKick();
    
 isBeat = false;
+
+ vu.process(bd, time);
+
+    var blurClip = vu.vu_levels[0] * 6.0;
+                if (blurClip < 0) blurClip = 0;
+                if (blurClip > 0.99) blurClip = 0.99;
+
+
+var beatColorOffset = (colorOffset + (360 * blurClip)) % 360;
+var promoteColor = [0,0,0];
+if(beatColorOffset >= 0 && beatColorOffset < 120){
+    promoteColor[0] = 0.5;  
+}
+if(beatColorOffset >= 120 && beatColorOffset < 240){
+    promoteColor[1] = 0.5;  
+}
+if(beatColorOffset >= 240 ){
+    promoteColor[2] = 0.5;  
+}
+
+
 var bpm = bd.win_bpm_int/10.0;
     if (bpm) {
         m_BeatTimer += bd.last_update;
 
         if (m_BeatTimer > (60.0 / bpm)) {
             m_BeatTimer -= (60.0 / bpm);
-            clearClr[0] = 0.5 + Math.random() / 2;
-            clearClr[1] = 0.5 + Math.random() / 2;
-            clearClr[2] = 0.5 + Math.random() / 2;
+            clearClr[0] = Math.min(promoteColor[0] + Math.random() / 2, 1);
+            clearClr[1] = Math.min(promoteColor[1] + Math.random() / 2, 1);
+            clearClr[2] = Math.min(promoteColor[2] + Math.random() / 2, 1);
             isBeat = true;
+            //console.log(clearClr);
         }
     }
 
@@ -168,17 +190,13 @@ var bpm = bd.win_bpm_int/10.0;
     body.css('background-color', 'rgb(' + rgb.join(',') + ')');
     //beatContainer.css('background-color', 'rgb(' + rgb.join(',') + ')');
     
-    vu.process(bd, time);
-
-    var blurClip = vu.vu_levels[0] * 6.0;
-                if (blurClip < 0) blurClip = 0;
-                if (blurClip > 0.75) blurClip = 0.75;
+   
     //console.log("bpm:" + bd.win_bpm_int_lo);
-    var blur = 'none';
+   /* var blur = 'none';
     if(blurClip > 0){
        blur = "blur(" + (5 * blurClip) + 'px)';
        //console.log(blur); 
-    }
+    }*/
 
     
 
@@ -226,10 +244,10 @@ var bpm = bd.win_bpm_int/10.0;
     }*/
    // console.log(bpmAvg);
 
-       if(beatvolume > slowBeatVolume){
+    if(beatvolume > slowBeatVolume){
         slowBeatVolume = beatvolume;
     }else{
-        slowBeatVolume *=0.90;
+        slowBeatVolume = beatvolume;
     }
 
    var data = {rgb:rgb, percentage:slowBeatVolume};
