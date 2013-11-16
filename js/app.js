@@ -12,7 +12,7 @@ var kickColor = 'white';
 var snareColor = 'white';
 var hatColor = 'white';
 var colorOffset = 360,
-    autoColorOffset = 0.09;
+    autoColorOffset = 0.5;
 
 var innerBars,
     kickContainer = $('#kick'),
@@ -102,6 +102,7 @@ var calculateBeatAvr = function(isBeat){
   
 };
 var slowVolume = 0;
+var slowVolumes = [0,0,0,0,0,0,0,0,0,0];
 var slowBeatVolume = 0;
 
 var colorForBand = function(spectrum, numberOfSpectrums){
@@ -186,8 +187,8 @@ var bpm = bd.win_bpm_int/10.0;
         }
     }
 
-    var rgb = [Math.round(255*clearClr[0]),Math.round(255*clearClr[1]),Math.round(255*clearClr[2])];
-    body.css('background-color', 'rgb(' + rgb.join(',') + ')');
+    var rgbBeat = [Math.round(255*clearClr[0]),Math.round(255*clearClr[1]),Math.round(255*clearClr[2])];
+    body.css('background-color', 'rgb(' + rgbBeat.join(',') + ')');
     //beatContainer.css('background-color', 'rgb(' + rgb.join(',') + ')');
     
    
@@ -229,12 +230,12 @@ var bpm = bd.win_bpm_int/10.0;
     
 
     var volumeData = {rgb:volumeRgb, percentage:slowVolume};
-    body.trigger( "volume", [ volumeData ] );
+
 
     
     calculateBeatAvr(isBeat);
 
-   var beatvolume = volumeForBand(spotifySpectrum[3]);
+   var beatvolume = volumeForBand(spotifySpectrum[0]);
    /* var beatRgb = colorForBandRGB(4, spectrumlength);
 
     var data = {rgb:beatRgb, percentage:beatvolume};
@@ -245,22 +246,39 @@ var bpm = bd.win_bpm_int/10.0;
    // console.log(bpmAvg);
 
     if(beatvolume > slowBeatVolume){
-        slowBeatVolume = beatvolume;
+        slowBeatVolume = Math.min(beatvolume * 2, 100);
     }else{
         slowBeatVolume = beatvolume;
     }
 
-   var data = {rgb:rgb, percentage:slowBeatVolume};
 
-    body.trigger( "beat", [ data ] );
+   var beatData = {rgb:rgbBeat, percentage:slowBeatVolume};
 
+
+    body.trigger( "beat", [ beatData ] );
+    
     updateBeat(isKick, isSnare, isHat, isBeat);
+    var volumes = [];
     for(var index=0; index<spectrumlength; index++){
         
         var hue = colorForBand(index, spectrumlength);
+        var rgb = colorForBandRGB(index, spectrumlength);
         var height = volumeForBand(spotifySpectrum[index]);
-        $(innerBars[index]).height(height+'%').css('background-color', getColor(hue));
+
+        if(height > slowVolumes[index]){
+            slowVolumes[index] = height;
+        }else{
+            slowVolumes[index] *=0.80;
+        }
+        if(index < 8){
+            volumes.push({rgb:rgb, percentage:slowVolumes[index]});
+        }
+       // $(innerBars[index]).height(height+'%').css('background-color', getColor(hue));
     };
+    //console.log(volumes);
+    volumes.push(beatData);
+    body.trigger( "volumes", [volumes] );
+    body.trigger( "volume", [volumes[4]] );
     //body.css('-webkit-filter', blur);
     colorOffset += autoColorOffset;
     colorOffset %= 360;
@@ -271,7 +289,7 @@ var bpm = bd.win_bpm_int/10.0;
 
 var bars = [];
 
-for (var i = 0; i < 31; i++) {
+for (var i = 0; i < 10; i++) {
     bars.push('<div class="bar"><div class="inner-bar"/></div>');
 }
 
@@ -286,7 +304,7 @@ require(['$api/models','$api/audio'], function(models,audio) {
 
                 _player = player;
                 console.log(audio);
-                var RTA = audio.RealtimeAnalyzer.forPlayer(player, audio.BAND31);
+                var RTA = audio.RealtimeAnalyzer.forPlayer(player, audio.BAND10);
                 RTA.addEventListener('audio',update);
                 RTA.addEventListener('reset',resetBeatDetektor);
                 RTA.addEventListener('pause',resetBeatDetektor);

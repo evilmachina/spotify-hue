@@ -23,9 +23,18 @@ $( "#connectLed" ).click(function() {
   	initLedstripe(ip);
 });
 
-
 var ledvisulaserIp = localStorage.getItem( 'ledvisulaserIp');
 $( "#ledvisulaserIp" ).val(ledvisulaserIp);
+
+$( "#connectJar" ).click(function() {
+    var ip = $( "#ledjarIp" ).val();
+
+    localStorage.setItem( 'ledjarIp', ip);
+    initJar(ip);
+});
+
+var ledjarIp = localStorage.getItem( 'ledjarIp');
+$( "#ledjarIp" ).val(ledjarIp);
 
 
 $( "#connectHue" ).click(function() {
@@ -34,7 +43,6 @@ $( "#connectHue" ).click(function() {
 	localStorage.setItem( 'hueIp', ip);
   	initHue(ip);
 });
-
 
 var hueIp = localStorage.getItem( 'hueIp');
 $( "#hueIp" ).val(hueIp);
