@@ -37,11 +37,11 @@ var initHue = function(ip){
 		lastcall = curentTime;
 		//console.log(hexcolor);
 		//window.hue.setColor(1, hexcolor);//, function(response){console.log(response);});
-		switc ? window.hue.setColor(2, rgb, transactionTime) : window.hue.setColor(4, rgb, transactionTime); //, function(response){window.hue.setColor(4, hexcolor);});
+		//switc ? window.hue.setColor(2, rgb, transactionTime) : window.hue.setColor(4, rgb, transactionTime); //, function(response){window.hue.setColor(4, hexcolor);});
 		//window.hue.setColor(3, hexcolor);//, function(response){console.log(response);});
 		//window.hue.setColor(4, hexcolor);//, function(response){console.log(response);});
 		//window.hue.setAllColors( hexcolor);//, function(response){console.log(response);});
-
+		window.hue.setColor(4, rgb, transactionTime);
 		switc = !switc;
 	});
 

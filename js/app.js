@@ -246,9 +246,9 @@ var bpm = bd.win_bpm_int/10.0;
    // console.log(bpmAvg);
 
     if(beatvolume > slowBeatVolume){
-        slowBeatVolume = Math.min(beatvolume * 2, 100);
+        slowBeatVolume = Math.min(beatvolume * 1.5, 100);
     }else{
-        slowBeatVolume = beatvolume;
+        slowBeatVolume *=0.70;
     }
 
 
