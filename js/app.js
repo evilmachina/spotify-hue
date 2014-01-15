@@ -1,7 +1,7 @@
 var _player;
 
 var position = 0;
-var bufferSize = 256;
+var bufferSize = 1024;//256;
 
 var signal = new Float32Array(bufferSize);
 var peak = new Float32Array(bufferSize);
